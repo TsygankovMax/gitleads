@@ -115,7 +115,7 @@ def generate_message(company: dict, contact: dict, product: str) -> str:
         return _fallback_message(company, contact, product)
 
     # If no real contact found, generate generic message — don't pretend
-    if contact.get("source") in ("mock", "no_match", "apollo_no_match", "apollo_error", "no_key") or not contact.get("first_name"):
+    if contact.get("source") in ("mock", "no_match", "lookup_error", "no_key") or not contact.get("first_name"):
         return _no_contact_message(company, product)
 
     sdks = ", ".join(company.get("llm_sdks", []))

@@ -8,8 +8,8 @@ import cache_util
 load_dotenv()
 
 # Support both new and legacy env var names
-PROVIDER_KEY = os.getenv("CONTACT_PROVIDER_KEY") or os.getenv("APOLLO_API_KEY", "")
-LIVE_MODE = (os.getenv("CONTACT_LIVE") or os.getenv("APOLLO_LIVE", "false")).lower() == "true"
+PROVIDER_KEY = os.getenv("CONTACT_PROVIDER_KEY", "")
+LIVE_MODE = os.getenv("CONTACT_LIVE", "false").lower() == "true"
 
 PROVIDER_BASE = os.getenv("CONTACT_PROVIDER_BASE", "")
 HEADERS = {

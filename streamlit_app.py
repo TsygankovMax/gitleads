@@ -13,10 +13,10 @@ st.set_page_config(page_title="GitLeads", page_icon="🎯", layout="wide")
 # ─── Sidebar: status + safety ────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## ⚙️ Status")
-    apollo_live = (os.getenv("CONTACT_LIVE") or os.getenv("APOLLO_LIVE", "false")).lower() == "true"
+    contacts_live = os.getenv("CONTACT_LIVE", "false").lower() == "true"
     openai_set = bool(os.getenv("OPENAI_API_KEY", ""))
 
-    st.markdown(f"**Contact lookup:** {'🔴 LIVE' if apollo_live else '🟢 MOCK (safe)'}")
+    st.markdown(f"**Contact lookup:** {'🔴 LIVE' if contacts_live else '🟢 MOCK (safe)'}")
     st.markdown(f"**Message generation:** {'✅ connected' if openai_set else '⚠️ fallback mode'}")
 
     st.divider()
