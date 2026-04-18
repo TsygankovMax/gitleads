@@ -26,8 +26,8 @@ st.caption("Turn GitHub activity into B2B leads — find companies hitting the p
 st.markdown("### 1. What do you sell, and to whom?")
 st.info("💡 Hackathon MVP — the prompts below are pre-validated and return cached results instantly. You can edit them or write your own; novel prompts work too but take ~2 min on first run.")
 
-DEFAULT_PRODUCT = "LLM gateway: unified API across OpenAI, Anthropic, Google, and 50+ providers. Smart routing by cost/latency, automatic fallbacks, request caching."
-DEFAULT_ICP = "AI startups using 2+ LLM providers in production, currently managing routing logic in custom code or with LiteLLM. Scaling-stage, want to remove infra complexity and add observability."
+DEFAULT_PRODUCT = "LLM observability platform for AI startups — token cost tracking per customer, prompt versioning with rollback, and eval pipelines that catch regressions before they hit production."
+DEFAULT_ICP = "B2B AI product startups, Seed to Series A, with LLMs in production. They use multiple model providers (OpenAI + Anthropic), are scaling beyond toy projects, and don't yet have a managed observability solution."
 
 col1, col2 = st.columns(2)
 with col1:
