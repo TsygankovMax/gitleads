@@ -172,13 +172,15 @@ def fetch_deps_text(full_name: str) -> tuple[str, str]:
     return "", ""
 
 
-def strip_comments_and_optional(text: str, deps_file: str) -> str:
-    """Drop commented lines and lines inside [optional]/[dev]/[test] sections.
-    Used to avoid false positives like '# openai-agents  # optional: examples'."""
+def strip_comments_and_optional(text: str, deps_file: str, owner: str = "") -> str:
+    """Drop noise: commented lines, [optional]/[dev]/[test] sections,
+    long script command lines, and own-org sub-packages."""
     if not text:
         return ""
+    owner_ns = f"@{owner.lower()}/" if owner else ""
     out = []
     in_drop_section = False
+    in_scripts_block = False  # for package.json
     for line in text.split("\n"):
         stripped = line.strip()
         if not stripped:
@@ -199,13 +201,34 @@ def strip_comments_and_optional(text: str, deps_file: str) -> str:
                 continue
             if in_drop_section:
                 continue
+        # package.json: skip the "scripts" block entirely (CLI commands, not deps)
+        if deps_file.endswith(".json"):
+            if '"scripts"' in stripped and ":" in stripped:
+                in_scripts_block = True
+                continue
+            if in_scripts_block:
+                # leave block when we hit a line that looks like a top-level key
+                if stripped.startswith('"') and ('": {' in stripped or '": "' in stripped) and not stripped.startswith('"@') and ":" in stripped:
+                    # a new section starts
+                    in_scripts_block = False
+                else:
+                    continue
+        # drop overly long lines — almost certainly scripts/commands, not deps
+        if len(line) > 120:
+            continue
+        # drop monorepo workspace internal packages — they're not external SDKs
+        if '"workspace:' in stripped or "'workspace:" in stripped:
+            continue
+        # drop lines whose match is an own-org sub-package (e.g. @composio/openai for ComposioHQ)
+        if owner_ns and owner_ns in stripped.lower():
+            continue
         out.append(line)
     return "\n".join(out)
 
 
 def signal_check(repo: dict) -> dict:
     fname, raw_text = fetch_deps_text(repo["full_name"])
-    text = strip_comments_and_optional(raw_text, fname)
+    text = strip_comments_and_optional(raw_text, fname, repo.get("owner", ""))
     repo["deps_file"] = fname
     repo["deps_text_clean"] = text  # cache for evidence step
     repo["llm_sdks"] = []
@@ -295,7 +318,7 @@ def search_and_qualify(
         text = r.get("deps_text_clean") or ""
         if not text:
             _, raw = fetch_deps_text(r["full_name"])
-            text = strip_comments_and_optional(raw, r["deps_file"])
+            text = strip_comments_and_optional(raw, r["deps_file"], r.get("owner", ""))
         signal_evidence.enrich_with_evidence(r, text)
         sig = r.get("signal_complete_date")
         if not sig:

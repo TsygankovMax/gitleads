@@ -120,16 +120,21 @@ if "qualified" in st.session_state:
         st.warning("No qualified leads found. Try lowering min stars or broadening topics.")
     else:
         # Generate contacts + messages on demand
+        # Curated allowlist of leads with clean signals + verified contacts (post-noise-filter audit)
+        DEMO_ALLOWLIST = {"VectifyAI/PageIndex", "letta-ai/letta", "minitap-ai/mobile-use"}
         if "leads" not in st.session_state:
             with st.spinner("Looking up contacts and generating personalized messages..."):
                 leads = []
                 progress = st.progress(0)
                 for i, repo in enumerate(st.session_state.qualified):
+                    if repo["full_name"] not in DEMO_ALLOWLIST:
+                        progress.progress((i + 1) / len(st.session_state.qualified))
+                        continue
                     contacts = contact_lookup.find_contacts(repo, max_contacts=5)
                     verified = [c for c in contacts if c.get("source") == "verified"]
                     if not verified:
                         progress.progress((i + 1) / len(st.session_state.qualified))
-                        continue  # skip leads without any verified contact
+                        continue
                     contributors = github_search.fetch_top_contributors(repo["full_name"], n=5)
                     msg = message_gen.generate_message(repo, verified[0], st.session_state.product)
                     leads.append({"repo": repo, "contacts": contacts, "contributors": contributors, "message": msg})
