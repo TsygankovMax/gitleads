@@ -11,7 +11,7 @@ load_dotenv()
 PROVIDER_KEY = os.getenv("CONTACT_PROVIDER_KEY") or os.getenv("APOLLO_API_KEY", "")
 LIVE_MODE = (os.getenv("CONTACT_LIVE") or os.getenv("APOLLO_LIVE", "false")).lower() == "true"
 
-PROVIDER_BASE = os.getenv("CONTACT_PROVIDER_BASE", "https://api.apollo.io/api/v1")
+PROVIDER_BASE = os.getenv("CONTACT_PROVIDER_BASE", "")
 HEADERS = {
     "Cache-Control": "no-cache",
     "Content-Type": "application/json",
