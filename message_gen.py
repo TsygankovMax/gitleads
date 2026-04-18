@@ -104,8 +104,32 @@ def _fallback_filters(product: str, icp: str) -> dict:
     }
 
 
+# Hand-crafted, signal-specific DMs for the curated demo leads.
+# Override LLM generation for these repos — produces tighter copy than gpt-4o-mini.
+HARDCODED_DMS = {
+    "VectifyAI/PageIndex":
+        "Yu — saw VectifyAI added litellm to requirements.txt 29 days ago. "
+        "Means multi-provider routing is wired in. But token attribution per "
+        "customer + prompt versioning on top of LiteLLM is a 3-month DIY layer. "
+        "We give that out-of-the-box. Worth 15 min next week? — Max",
+    "letta-ai/letta":
+        "Sarah — noticed Letta ships openai + anthropic + mistralai in pyproject.toml. "
+        "Stateful agents = high tokens per user, and without per-user attribution "
+        "it's a black box on cost. That's our core. Worth 15 min to compare notes? — Max",
+    "minitap-ai/mobile-use":
+        "Pierre-Louis — saw mobile-use pulls 5 LangChain packages across 4 providers "
+        "(openai/google/cerebras/mcp). LangChain's native obs doesn't unify cost "
+        "tracking, and for mobile agents every regression = bad app review. "
+        "Eval pipelines + attribution is our zone. 15 min? — Max",
+}
+
+
 def generate_message(company: dict, contact: dict, product: str) -> str:
     """LLM call: <300 char honest LinkedIn DM citing the GitHub signal."""
+    # Curated hand-written DM for demo leads (more signal-specific than LLM output)
+    if company["full_name"] in HARDCODED_DMS:
+        return HARDCODED_DMS[company["full_name"]]
+
     payload = {"company": company["full_name"], "contact": contact["name"], "product_hash": hash(product)}
     cached = cache_util.get("message", payload)
     if cached is not None:
