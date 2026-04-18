@@ -126,9 +126,12 @@ if "qualified" in st.session_state:
                 progress = st.progress(0)
                 for i, repo in enumerate(st.session_state.qualified):
                     contacts = contact_lookup.find_contacts(repo, max_contacts=5)
+                    verified = [c for c in contacts if c.get("source") == "verified"]
+                    if not verified:
+                        progress.progress((i + 1) / len(st.session_state.qualified))
+                        continue  # skip leads without any verified contact
                     contributors = github_search.fetch_top_contributors(repo["full_name"], n=5)
-                    primary = contacts[0] if contacts else None
-                    msg = message_gen.generate_message(repo, primary or {}, st.session_state.product) if primary else ""
+                    msg = message_gen.generate_message(repo, verified[0], st.session_state.product)
                     leads.append({"repo": repo, "contacts": contacts, "contributors": contributors, "message": msg})
                     progress.progress((i + 1) / len(st.session_state.qualified))
                 progress.empty()
