@@ -303,10 +303,6 @@ def search_and_qualify(
         # Drop if definitely stale (> max_age_days, regardless of approximate)
         if sig["days_ago"] > max_age_days:
             continue
-        # Drop if approximate AND age is more than half the cutoff
-        # (since approximate dates are LOWER bounds — actual is older)
-        if sig.get("approximate") and sig["days_ago"] > max_age_days // 2:
-            continue
         fresh.append(r)
         if len(fresh) >= max_results:
             break

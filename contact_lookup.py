@@ -36,6 +36,15 @@ def _mock_contact(company: dict, idx: int = 0) -> dict:
     }
 
 
+# Owner -> verified provider domain (for cases where homepage URL differs from
+# the domain the contact provider has indexed)
+DOMAIN_OVERRIDES = {
+    "elizaos": "elizaos.ai",
+    "flowiseai": "flowiseai.com",
+    "promptslab": "promptslab.com",
+}
+
+
 def _extract_domain(url: str) -> str:
     if not url:
         return ""
@@ -120,7 +129,8 @@ def find_contacts(company: dict, max_contacts: int = 5) -> list[dict]:
     if not PROVIDER_KEY:
         return [{**_mock_contact(company, 0), "source": "no_key"}]
 
-    domain = _extract_domain(company.get("homepage", "")) or f"{company['owner'].lower()}.com"
+    owner_lc = company["owner"].lower()
+    domain = DOMAIN_OVERRIDES.get(owner_lc) or _extract_domain(company.get("homepage", "")) or f"{owner_lc}.com"
     candidates = _search_people(domain, max_contacts=max_contacts)
 
     if not candidates:

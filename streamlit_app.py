@@ -89,9 +89,9 @@ if "filters" in st.session_state:
     with fcol2:
         min_stars = st.number_input("Min stars", value=30, step=10)
         max_results = st.number_input("Max leads", value=15, step=5)
-        max_age_days = st.slider("Signal max age (days)", min_value=14, max_value=365, value=120, step=15,
+        max_age_days = st.slider("Signal max age (days)", min_value=14, max_value=365, value=365, step=15,
                                   help="Drop leads whose signal is older than this. B2B buying-intent window is 30-90 days.")
-        candidate_pool = st.number_input("Candidate pool", value=100, step=25, min_value=20, max_value=300,
+        candidate_pool = st.number_input("Candidate pool", value=200, step=25, min_value=20, max_value=300,
                                           help="How many companies to deep-scan for dates. Bigger = better fresh-signal yield, slower first run.")
 
     if st.button("🔍 Run search →", type="primary"):
