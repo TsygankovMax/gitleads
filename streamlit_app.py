@@ -87,7 +87,7 @@ if "filters" in st.session_state:
         f["obs_vendors_to_exclude"] = obs
 
     with fcol2:
-        min_stars = st.number_input("Min stars", value=30, step=10)
+        min_stars = st.number_input("Min stars", value=100, step=10)
         max_results = st.number_input("Max leads", value=15, step=5)
         max_age_days = st.slider("Signal max age (days)", min_value=14, max_value=365, value=365, step=15,
                                   help="Drop leads whose signal is older than this. B2B buying-intent window is 30-90 days.")
@@ -227,19 +227,6 @@ if "qualified" in st.session_state:
                     else:
                         st.info("Contact lookup is in MOCK mode — switch to LIVE in config to pull real records.")
 
-                    # ── GitHub contributors (always shown — engineers/champions) ──
-                    if contributors:
-                        st.divider()
-                        st.markdown("**🐙 Top GitHub contributors (engineers — likely champions):**")
-                        for c in contributors:
-                            cc = st.columns([3, 2])
-                            with cc[0]:
-                                st.markdown(f"**@{c['login']}**  ·  {c['commits']} commits")
-                            with cc[1]:
-                                st.markdown(
-                                    f"[GitHub ↗]({c['github_url']})  ·  "
-                                    f"[🔍 LinkedIn search ↗]({c['linkedin_search_url']})"
-                                )
 
         st.divider()
 
