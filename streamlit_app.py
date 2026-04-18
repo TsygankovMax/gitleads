@@ -8,19 +8,15 @@ import github_search
 import contact_lookup
 import message_gen
 
-st.set_page_config(page_title="GitLeads", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="GitLeads", page_icon="🎯", layout="wide", initial_sidebar_state="collapsed")
 
-# ─── Sidebar: status + safety ────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("## ⚙️ Status")
-    contacts_live = os.getenv("CONTACT_LIVE", "false").lower() == "true"
-    openai_set = bool(os.getenv("OPENAI_API_KEY", ""))
-
-    st.markdown(f"**Contact lookup:** {'🔴 LIVE' if contacts_live else '🟢 MOCK (safe)'}")
-    st.markdown(f"**Message generation:** {'✅ connected' if openai_set else '⚠️ fallback mode'}")
-
-    st.divider()
-    st.caption("MOCK mode returns placeholder contacts for testing. Switch to LIVE in config to pull verified records.")
+# Hide sidebar entirely
+st.markdown("""
+<style>
+    [data-testid="stSidebar"] {display: none;}
+    [data-testid="collapsedControl"] {display: none;}
+</style>
+""", unsafe_allow_html=True)
 
 # ─── Title ───────────────────────────────────────────────────────────────────
 st.title("🎯 GitLeads")
