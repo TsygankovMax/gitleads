@@ -8,6 +8,41 @@ import github_search
 import contact_lookup
 import message_gen
 
+
+def explain_signal(sdks: list[str]) -> str:
+    """One-line interpretation of detected SDK pattern — explains *why* this is a buying signal."""
+    has_litellm = "litellm" in sdks
+    has_langchain = any("langchain" in s.lower() for s in sdks)
+    providers = {s.lower() for s in sdks} & {
+        "openai", "@anthropic-ai/sdk", "anthropic", "@google/generative-ai",
+        "google-generativeai", "mistralai", "cohere", "@ai-sdk/openai", "@ai-sdk/anthropic",
+    }
+    multi_provider = len(providers) >= 2
+
+    parts = []
+    if has_litellm:
+        parts.append(
+            "**LiteLLM in deps = they built a DIY routing proxy.** "
+            "Means they already felt multi-provider pain enough to write infra for it — "
+            "but token attribution per customer and prompt versioning are not in LiteLLM. "
+            "That layer is exactly what observability vendors sell."
+        )
+    if multi_provider and not has_litellm:
+        parts.append(
+            "**Multiple LLM providers shipped to production = strategic hedging at scale.** "
+            "Cost models differ per provider, native SDKs don't unify tracking. "
+            "Per-customer cost attribution becomes the #1 unknown — and the #1 reason teams buy obs platforms."
+        )
+    if has_langchain and not has_litellm:
+        parts.append(
+            "**Heavy LangChain ecosystem use** = orchestration framework in production. "
+            "LangChain's built-in observability is basic — teams typically outgrow it "
+            "within 60 days of real user traffic and start shopping for a managed platform."
+        )
+    if not parts:
+        parts.append("LLM SDK in active production deps — early signal of LLM workload.")
+    return "  \n\n".join(parts)
+
 st.set_page_config(page_title="GitLeads", page_icon="🎯", layout="wide", initial_sidebar_state="collapsed")
 
 # Hide sidebar entirely
@@ -180,6 +215,8 @@ if "qualified" in st.session_state:
                 evidence = r.get("evidence_lines", [])
                 if evidence:
                     with st.expander(f"📁 Code evidence — {len(evidence)} lines in `{r['deps_file']}`"):
+                        st.info(f"💡 **Why this is a buying signal:**  \n\n{explain_signal(r.get('llm_sdks', []))}")
+                        st.markdown("**Matched lines in their repo:**")
                         for ev in evidence[:5]:
                             line_url = f"https://github.com/{r['full_name']}/blob/HEAD/{ev['file']}#L{ev['line_num']}"
                             st.markdown(f"**[`{ev['file']}:{ev['line_num']}`]({line_url})** · matched `{ev['sdk']}`")
